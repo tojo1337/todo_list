@@ -21,47 +21,69 @@ const SimpleGreet = ()=>{
 			console.log(err);
 		});
 	},[]);
-	const handler = (e)=>{
+	const submitHandler = (e)=>{
 		e.preventDefault();
 		const form = e.target;
 		const formData = new FormData(form);
 		const formJson = Object.fromEntries(formData.entries());
-		axios.post(setDataUrl,{
-			data:formJson.myData
-		})
-		.then((response)=>{
-			console.log(response);
-			axios.get(getDataUrl)
-			.then((resp)=>{
-				dataFetch(resp,setTodoList);
-			})
-		})
-		.catch((err)=>{
-			console.log(err);
-		});
+		let arr = [...todoList];
+		arr.push(formJson.myData);
+		setTodoList(arr);
+	}
+	const editHandle = (event,keyVal)=>{
+		console.log("Edit handler called");
+	}
+	const removeHandle = (event,keyVal)=>{
+		//Add the delete handler in here
+		let arr = [...todoList];
+		let newArr = new Array();
+		for(let i=0;i<arr.length;i++){
+			if(i===keyVal){
+				continue;
+			}else {
+				newArr.push(arr[i]);
+			}
+		}
+		setTodoList(newArr);
 	}
 	const List = ()=>{
 		let arr = [...todoList];
-		const data = arr.map(data=>{return (
-				<li key={arr.indexOf(data)}>{data}</li>	
+		const data = arr.map(data=>{
+			let keyVal = arr.indexOf(data);
+			return (
+				<tr key={keyVal}>
+					<td>{data}</td>
+					<td>
+						<button className="btn btn-outline-warning" onClick={(e)=>editHandle(e,keyVal)}>edit</button>
+						<button className="btn btn-outline-danger" onClick={(e)=>removeHandle(e,keyVal)}>remove</button>
+					</td>
+				</tr>
 			);
 		});
 		return (
-			<ul>
-				{data}
-			</ul>
+			<table className="table table-borderless">
+				<tbody>
+					{data}
+				</tbody>
+			</table>
 		);
 	}
+	const saveHandle = ()=>{
+		console.log("Save button clicked");
+	}
 	return(
-		<div className="simple-greet">
-			<form method="post" onSubmit={handler}>
-				<label htmlFor="Data">Data : </label>
-				<input type="text" name="myData" />
-				<button type="submit">enter</button>
+		<div className="container simple-greet">
+			<form className="form-grid" method="post" onSubmit={submitHandler}>
+				<div className="row">
+					<div className="col">
+						<input className="form-control" type="text" name="myData" />
+					</div>
+					<div className="col">
+						<button type="submit" className="btn btn-outline-primary">enter</button>
+					</div>
+				</div>
 			</form>
-			<p>
-				TODO list : <br /> 
-			</p>
+			<button className="btn btn-outline-primary" onClick={saveHandle}>save</button>
 			<List />
 		</div>
 	)
